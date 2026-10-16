@@ -1,0 +1,11 @@
+.gradle/
+.idea/
+.kotlin/
+local.properties
+**/build/
+*.apk
+*.iml
+__pycache__/
+*.pyc
+report-assets/preview*.png
+report-assets/instrumentation-run.txt

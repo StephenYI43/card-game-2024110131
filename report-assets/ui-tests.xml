@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.songjunyi.cardgame.CardGameUiRunner" tests="7" failures="0" errors="0" skipped="0" time="29.192" timestamp="2026-10-16T00:50:25" hostname="localhost">
+  <properties>
+    <property name="device" value="HelloWorld_Visible_API35(AVD) - 15" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="defaultProfile" classname="com.songjunyi.cardgame.CardGameUiRunner" time="1.693" />
+  <testcase name="saveAndCancelProfile" classname="com.songjunyi.cardgame.CardGameUiRunner" time="3.672" />
+  <testcase name="invalidProfileInput" classname="com.songjunyi.cardgame.CardGameUiRunner" time="2.081" />
+  <testcase name="firstFlipAndTurnBack" classname="com.songjunyi.cardgame.CardGameUiRunner" time="2.106" />
+  <testcase name="rankMatchRestartAndBest" classname="com.songjunyi.cardgame.CardGameUiRunner" time="4.61" />
+  <testcase name="mismatchFeedback" classname="com.songjunyi.cardgame.CardGameUiRunner" time="2.004" />
+  <testcase name="rotationRestoresGame" classname="com.songjunyi.cardgame.CardGameUiRunner" time="2.472" />
+</testsuite>

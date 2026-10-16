@@ -1,0 +1,7 @@
+<resources>
+    <string name="fixture_name">示例玩家</string>
+    <string name="fixture_phone">10086</string>
+    <string name="fixture_email">player@example.com</string>
+    <string name="fixture_bad_email">invalid-email</string>
+    <string name="fixture_empty"></string>
+</resources>
