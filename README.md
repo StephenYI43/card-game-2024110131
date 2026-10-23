@@ -1,77 +1,49 @@
-# 实验四 翻牌游戏应用
+# 实验五 RecyclerView 三牌翻牌游戏
 
-作者：宋珺熠（2024110131），应用标题：**宋珺熠2024110131**。
+作者：宋珺熠，学号：2024110131。应用标题：宋珺熠2024110131。
 
-Android Studio 独立工程，包含 3 个 Activity：玩家主页、个人信息修改、翻牌游戏。按课程 model.zip 实现 MVC，支持 16 张牌交互、得分同步、重新开始、内存最高分和横竖屏牌局恢复。
+本实验从实验四提交 `3617f28` 独立克隆，在 `Dev` 分支开发；实验四本地工程、APK 和报告均未修改。旧版源码可从 `lab4-complete` 标签查看。
 
-## 运行
+## 在 Android Studio 运行
 
-本机推荐在 Android Studio 打开：
+本机打开固定英文目录 `C:\Users\48604\Documents\ChatGPT\android-labs\assignment5-project`。工作区中的 `assignment5-recyclerview` 是指向该目录的链接，不是实验四目录。
 
-```text
-C:\Users\48604\Documents\ChatGPT\android-labs\assignment4-project
-```
+JBR 17 以上、SDK 35、Gradle 8.13、AGP 8.13.2、Kotlin 2.1.20。运行 `app`。独立包名 `com.songjunyi.cardgame.lab5`，可与实验四同时安装。未知性别、电话、邮箱和爱好不擅自填写。
 
-原工作区的 assignment4-card-game 是指向同一工程的目录链接，没有第二份源码。固定英文目录用于解决 Windows 中文路径下 Gradle JUnit 的 ClassNotFoundException，不依赖临时盘符。其他电脑克隆到英文路径即可。
+## 功能与规则
 
-使用 Android Studio 内置 JBR（本机为 21），安装 SDK 35，启动 API 23 以上的模拟器/真机，运行 app。本次实测设备是 API 35 模拟器。
+- 仍包含主页、修改资料、翻牌游戏三个 Activity，主页右上角溢出菜单打开关于对话框。
+- RecyclerView + GridLayoutManager + CardAdapter。适配器实现 ViewHolder 创建、绑定、条目数量、稳定ID和点击回调；通过 bindingAdapterPosition 防止复用后位置失效，用 DiffUtil 更新变化。
+- 三张同点数奖励24分，三张同花色奖励12分，点数优先。每次新翻牌扣1分，失配另扣2分。连续从零翻三张后的净分分别为21、9或-5。
+- 前两张明牌等待第三张；未匹配明牌可免费收起。失配时前两张收起，保留新翻的第三张；匹配成功三张保持明牌并禁用。
+- 竖屏新局24张，每行4张；横屏新局36张，每行9张。列表可以滚动。旋转保留当前局牌数和全部状态，点击重新开始才按当前方向调整牌数。
+- CardMatchingGame.reset 在原模型实例中洗牌、清零；最高分不降低。资料和最高分仅存于应用进程内存，不写文件。
+- 所有界面文案、菜单、对话框、牌面符号和格式文字来自字符串资源。
 
-## 功能与 MVC
+## MVC
 
-| 部分 | 文件 | 职责 |
-| --- | --- | --- |
-| 主页控制器 | MainActivity.kt | 展示资料、导航、接收修改结果 |
-| 修改页面 | ProfileActivity.kt | 姓名、学号、电话、邮箱、性别、爱好，保存/取消与校验 |
-| 模型 | model/Card.kt、Deck.kt、CardMatchingGame.kt | 52张牌不放回抽取、选择、匹配、计分、快照 |
-| 内存资料 | model/PlayerSession.kt、GameApplication.kt | 资料与本次运行最高分，不写入文件 |
-| View | GameBoardView.kt、ScreenActivity.kt、字符串/主题资源 | 卡牌网格、牌面、明暗状态与可点击状态 |
-| 游戏控制器 | GameActivity.kt | 处理按钮事件、调用模型、同步界面与重开牌局 |
+Model 位于 `model/`，独立处理三牌匹配、计分、reset、终局和快照。View 是 RecyclerView、CardAdapter 和字符串资源，不计算分数。GameActivity 是 Controller：接收回调、调用模型、记录最高分并刷新界面。BoardLayout 负责可单测的横竖屏新局牌数/列数策略。
 
-Manifest 恰好声明 3 个 Activity，共享的抽象 ScreenActivity 不单独注册。默认姓名/学号是真实作业身份，未知性别、电话、邮箱与爱好显示未设置或未填写。测试截图中的“示例玩家”、10086、player@example.com、性别与爱好是测试数据。
+## 实测结果
 
-## 课程计分规则
-
-- 新翻一张牌扣 1 分，收起已翻开但未匹配的牌不再扣分。
-- 相同点数匹配奖励 4 × 4 = 16 分；两次新翻牌后净得 14 分。
-- 仅花色相同奖励 1 × 4 = 4 分；两次新翻牌后净得 2 分。
-- 点数/花色均不同另扣 2 分；两次新翻牌后合计扣 4 分。
-- 匹配成功的两张牌保持明牌并禁用。不匹配时上一张牌收起，当前牌保持翻开。
-- 当前分数可以为负数；本次运行最高分从0开始且不会降低。重新开始只清空本局数据。
-- 全部匹配或剩余牌已不存在可匹配组合时提示结束，可重新开始。
-
-## 测试
+23项 JUnit 模型测试、10项 API 35 模拟器 Instrumentation UI 测试全部通过。Android Lint 0错误、3个警告（SDK版本更新建议及备份规则）；其他设备与Android版本未验证。UI测试真实点击菜单及卡牌，随机牌局只读当前模型来选择可验证组合。截图中的“示例玩家”、10086、player@example.com、性别和爱好是测试数据。
 
 ```powershell
-.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:connectedDebugAndroidTest :app:lintDebug
+.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:connectedDebugAndroidTest :app:lintDebug '-Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true'
 ```
 
-首次需联网下载依赖，缓存完整后可加 --offline。连接设备的测试需要运行中的 Android 模拟器或调试设备。
+首次需要联网下载依赖，缓存齐全后可加 `--offline`。设备测试需要已启动模拟器。XML结果和真实运行截图位于 `report-assets/lab5/`；实验四的历史证据仍单独保留在原有路径。
 
-14 项 JUnit 4 单元测试位于 app/src/test：规则优先级、同花色、失配、抽牌唯一性、非法输入、翻牌/收起、奖励与费用、状态快照、终局、新局与最高分。
+<img src="report-assets/lab5/06-board-24.png" width="250" alt="24张牌" />
+<img src="report-assets/lab5/09-triple-matched.png" width="250" alt="三张同花色净得9分" />
+<img src="report-assets/lab5/03-about-dialog.png" width="250" alt="关于对话框" />
 
-7 项原生 Android Instrumentation UI 测试位于 app/src/androidTest，并由 connectedDebugAndroidTest 执行。覆盖默认资料、保存/取消、非法输入、翻牌/收起、匹配/重开/最高分、失配与旋转。测试对随机牌局只读取当前模型以选择需要验证的组合，实际交互通过界面按钮完成。
+## GitHub 分支与 PR
 
-两类测试均已在本机通过；Lint 为 0 错误、6 警告（工具版本、备份规则、未使用资源和代码创建的自定义View构造方法）。HTML报告位于 app/build/reports/tests 与 app/build/reports/androidTests；真实XML与截图归档在 report-assets。
+沿用仓库：https://github.com/StephenYI43/card-game-2024110131 。保留 `main` 和 `Dev`。main 禁止直接 push，要求 PR 和 `Local Android verification` 提交检查通过，并对管理员执行保护。Dev 不在合并后删除。
 
-要在 Gradle 测试后保留设备上的测试截图，可使用以下参数（PowerShell 必须整体加引号）：
+GitHub 不允许作者批准自己的 PR，因此独立个人实验使用“强制 PR、0个外部批准、提交检查必过”，并通过 PR 评论记录代码自审，不冒充第二名审核人。没有使用管理员绕过合并。本次登录没有 workflow 写权限，因此不运行 GitHub Actions；构建、23项单元测试、10项设备UI测试和 Lint 均在本机实际完成，再将带有原始XML证据链接的成功状态登记到对应提交，不把本机测试冒充云端CI。
 
-```powershell
-.\gradlew.bat :app:connectedDebugAndroidTest '-Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true'
-adb pull /sdcard/Android/data/com.songjunyi.cardgame/files/ui-test-evidence/. report-assets
-```
+实验报告由工作区附件模板通过 WPS 接口填写，另存为实验五文件，不使用桌面点击自动化。报告及生成脚本使用独立 lab5 文件名；实验四文件未覆盖。
 
-## 报告与截图
-
-docs 中保存填写完成的实验报告，包含真实运行截图、带行号源码摘录、两类测试记录与分析。报告通过 WPS 的 kwps.Application 接口生成，并用 WPS 原生PDF导出检查分页，不使用桌面点击自动化。
-
-<img src="report-assets/01-default-main.png" width="250" alt="默认主页" />
-<img src="report-assets/05-card-matched.png" width="250" alt="点数匹配成功" />
-<img src="report-assets/09-main-best.png" width="250" alt="主页面最高分" />
-
-## 说明
-
-界面文案、牌面符号、提示、格式字符串均使用 res/values/strings.xml。Bundle键名、技术标识与测试诊断字符串不属于界面文案。主题采用原生 Material NoActionBar，按钮清除背景 tint 后显示自定义颜色。
-
-个人信息与最高分仅存于应用进程内存。进程重新启动后恢复默认；屏幕旋转会保存并恢复当前牌局。已验证范围为 API 35 模拟器，其他 Android 版本和品牌真机尚未验证。
-
-参考课程提供的 model.zip、翻牌游戏.pdf、实验四报告模板。项目地址：https://github.com/StephenYI43/card-game-2024110131
+官方参考：[RecyclerView](https://developer.android.com/develop/ui/views/layout/recyclerview)、[版本1.4.0](https://developer.android.com/jetpack/androidx/releases/recyclerview)、[GitHub分支保护](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)。

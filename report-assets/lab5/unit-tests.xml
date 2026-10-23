@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.songjunyi.cardgame.model.GameModelTest" tests="23" skipped="0" failures="0" errors="0" timestamp="2026-10-23T00:42:36.369Z" hostname="STEPHEN熠的电脑" time="0.053">
+  <properties/>
+  <testcase name="threeEqualSuitsScoreThree" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.005"/>
+  <testcase name="mismatchHidesPreviousTwoAndKeepsNewest" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.027"/>
+  <testcase name="partiallyEqualTripleCannotMatch" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="turningBackIsFreeAndDoesNotCountAsNewFlip" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.001"/>
+  <testcase name="snapshotPreservesMatchedTripleAndScore" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.005"/>
+  <testcase name="orientationPolicyUses24Or36AndFourOrNineColumns" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.001"/>
+  <testcase name="terminalStateStopsUnmatchableRemainingCards" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.001"/>
+  <testcase name="resetClearsTheSameModelInstance" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.004"/>
+  <testcase name="invalidResetLeavesExistingGameUntouched" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.001"/>
+  <testcase name="deckDraws52UniqueCardsWithoutReplacement" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.001"/>
+  <testcase name="unselectingOneOfTwoDoesNotPrematurelyMatch" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="wrongCardinalityCannotMatch" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="rankTripleScoresTwentyOneAndDisablesMatchedCards" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="snapshotRejectsThreePendingChoices" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="suitTripleScoresNine" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="rankRuleHasPriorityWhenBothConditionsHold" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="bestScoreNeverDropsAndProfileEditRetainsIt" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.003"/>
+  <testcase name="threeEqualRanksScoreSix" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="resetSupportsLandscape36CardsAndUniqueDeck" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="snapshotRejectsDuplicateCardsAndPartialMatchedSet" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="invalidCountsAreRejected" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.001"/>
+  <testcase name="firstTwoChoicesWaitForThird" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <testcase name="snapshotPreservesTwoChosenCardsAndIsIndependent" classname="com.songjunyi.cardgame.model.GameModelTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

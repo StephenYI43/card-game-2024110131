@@ -16,7 +16,7 @@ abstract class ScreenActivity : Activity() {
     protected lateinit var content: LinearLayout
     protected val session get() = (application as GameApplication).session
 
-    protected fun screen(title: Int, subtitle: Int, back: Boolean = false) {
+    protected fun screen(title: Int, subtitle: Int, back: Boolean = false, menu: Boolean = false) {
         val scroll = ScrollView(this).apply {
             isFillViewport = true
             clipToPadding = false
@@ -44,6 +44,15 @@ abstract class ScreenActivity : Activity() {
                     insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
             }
             insets
+        }
+        if (menu) {
+            val toolbar = Toolbar(this).apply {
+                setTitleTextColor(white)
+                popupTheme = android.R.style.Theme_Material
+            }
+            content.addView(toolbar, LinearLayout.LayoutParams(-1, dp(48)))
+            setActionBar(toolbar)
+            actionBar?.setTitle(R.string.app_name)
         }
         if (back) button(content, R.string.back, false).setOnClickListener { finish() }
         label(content, R.string.eyebrow, 11f, accent, true).letterSpacing = .13f
