@@ -46,4 +46,6 @@ GitHub 不允许作者批准自己的 PR，因此独立个人实验使用“强�
 
 实验报告由工作区附件模板通过 WPS 接口填写，另存为实验五文件，不使用桌面点击自动化。报告及生成脚本使用独立 lab5 文件名；实验四文件未覆盖。
 
+[实验五已填写报告](docs/实验五_RecyclerView翻牌游戏_实验报告_2024110131宋珺熠.docx) 共9页，含真实运行截图、带行号源码、测试和已合并PR记录。实验五生成脚本为 `scripts/build_report_lab5_wps.ps1` 和 `scripts/report_lab5_figures.py`；同仓库历史实验四脚本不用于生成实验五。
+
 官方参考：[RecyclerView](https://developer.android.com/develop/ui/views/layout/recyclerview)、[版本1.4.0](https://developer.android.com/jetpack/androidx/releases/recyclerview)、[GitHub分支保护](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)。
