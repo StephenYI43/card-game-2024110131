@@ -1,7 +1,10 @@
 package com.songjunyi.cardgame
 
 import android.content.Intent
+import android.app.AlertDialog
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.TextView
 
 @Suppress("DEPRECATION")
@@ -9,7 +12,7 @@ class MainActivity : ScreenActivity() {
     private val fields = mutableMapOf<Int, TextView>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        screen(R.string.main_title, R.string.main_subtitle)
+        screen(R.string.main_title, R.string.main_subtitle, menu = true)
         val info = panel()
         label(info, R.string.profile_title, 18f, white, true)
         for (id in listOf(R.id.player_name, R.id.player_gender, R.id.player_student,
@@ -31,6 +34,20 @@ class MainActivity : ScreenActivity() {
             }
         }
         label(content, R.string.profile_note, 12f, muted)
+    }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId != R.id.menu_about) return super.onOptionsItemSelected(item)
+        AlertDialog.Builder(this)
+            .setTitle(R.string.about_title)
+            .setMessage(getString(R.string.about_description, getString(R.string.default_name),
+                getString(R.string.default_student), getString(R.string.app_version)) + getString(R.string.rules_description))
+            .setPositiveButton(R.string.dialog_ok, null)
+            .show()
+        return true
     }
     override fun onResume() { super.onResume(); refreshProfile() }
     private fun refreshProfile() {

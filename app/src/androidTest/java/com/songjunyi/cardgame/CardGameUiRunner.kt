@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.widget.*
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.GridLayoutManager
 import com.songjunyi.cardgame.model.CardMatchingGame
 import com.songjunyi.cardgame.test.R as TestR
 import java.io.File
@@ -17,12 +19,15 @@ class CardGameUiRunner : Instrumentation() {
     override fun onStart() {
         val cases = listOf(
             "defaultProfile" to ::defaultProfile,
+            "menuOpensAboutDialog" to ::menuOpensAboutDialog,
             "saveAndCancelProfile" to ::saveAndCancelProfile,
             "invalidProfileInput" to ::invalidProfileInput,
-            "firstFlipAndTurnBack" to ::firstFlipAndTurnBack,
-            "rankMatchRestartAndBest" to ::rankMatchRestartAndBest,
+            "board24AndRecycledState" to ::board24AndRecycledState,
+            "firstTwoAndTurnBack" to ::firstTwoAndTurnBack,
+            "tripleMatchResetAndBest" to ::tripleMatchResetAndBest,
             "mismatchFeedback" to ::mismatchFeedback,
-            "rotationRestoresGame" to ::rotationRestoresGame
+            "rotationRestoresGame" to ::rotationRestoresGame,
+            "landscapeNewRound36" to ::landscapeNewRound36
         )
         var failures = 0
         cases.forEachIndexed { index, (name, test) ->
@@ -112,6 +117,30 @@ class CardGameUiRunner : Instrumentation() {
         verify(read(main, R.id.player_best) == targetContext.getString(R.string.number_format, 0), "Best starts at zero")
         screenshot("01-default-main.png")
     }
+    private fun menuOpensAboutDialog() {
+        val main = main()
+        runOnMainSync { main.openOptionsMenu() }
+        screenshot("02-main-menu.png")
+        val items = uiAutomation.rootInActiveWindow.findAccessibilityNodeInfosByText(
+            targetContext.getString(R.string.menu_about))
+        verify(items.isNotEmpty(), "About overflow item visible")
+        var clicked = false
+        for (node in items) {
+            var item: android.view.accessibility.AccessibilityNodeInfo? = node
+            while (item != null && !item.isClickable) item = item.parent
+            if (item != null) {
+                clicked = item.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)
+                if (clicked) break
+            }
+        }
+        verify(clicked, "About overflow item clicked")
+        waitForIdleSync()
+        screenshot("03-about-dialog.png")
+        val nodes = uiAutomation.rootInActiveWindow.findAccessibilityNodeInfosByText(
+            targetContext.getString(R.string.default_student))
+        verify(nodes.isNotEmpty(), "About dialog shows student identity")
+        sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+    }
     private fun saveAndCancelProfile() {
         val main = main()
         var editor = open(main, R.id.edit_profile, ProfileActivity::class.java)
@@ -123,14 +152,14 @@ class CardGameUiRunner : Instrumentation() {
             editor.findViewById<CheckBox>(R.id.hobby_1).isChecked = true
             editor.findViewById<CheckBox>(R.id.hobby_2).isChecked = true
         }
-        screenshot("02-profile-editor.png")
+        screenshot("04-profile-editor.png")
         tap(editor, R.id.save_profile)
         awaitCondition("Name updated after Activity result") {
             read(main, R.id.player_name).contains(fixture(TestR.string.fixture_name))
         }
         verify(read(main, R.id.player_phone).contains(fixture(TestR.string.fixture_phone)), "Phone updated")
         verify(read(main, R.id.player_email).contains(fixture(TestR.string.fixture_email)), "Email updated")
-        screenshot("03-profile-saved.png")
+        screenshot("05-profile-saved.png")
         editor = open(main, R.id.edit_profile, ProfileActivity::class.java)
         runOnMainSync { editor.findViewById<EditText>(R.id.edit_name).setText(targetContext.getString(R.string.default_name)) }
         tap(editor, R.id.cancel_profile)
@@ -151,7 +180,7 @@ class CardGameUiRunner : Instrumentation() {
         tap(editor, R.id.save_profile)
         runOnMainSync { error = editor.findViewById<EditText>(R.id.edit_email).error }
         verify(error != null && !editor.isFinishing, "Invalid email is rejected")
-        screenshot("10-validation.png")
+        screenshot("15-validation.png")
         tap(editor, R.id.cancel_profile)
     }
     private fun game(): Pair<MainActivity, GameActivity> {
@@ -162,47 +191,94 @@ class CardGameUiRunner : Instrumentation() {
         val field = GameActivity::class.java.getDeclaredField("game").apply { isAccessible = true }
         return field.get(game) as CardMatchingGame
     }
-    private val ids = intArrayOf(R.id.card_0, R.id.card_1, R.id.card_2, R.id.card_3,
-        R.id.card_4, R.id.card_5, R.id.card_6, R.id.card_7, R.id.card_8, R.id.card_9,
-        R.id.card_10, R.id.card_11, R.id.card_12, R.id.card_13, R.id.card_14, R.id.card_15)
-    private fun firstFlipAndTurnBack() {
-        val (_, game) = game()
-        tap(game, ids[0])
-        verify(read(game, R.id.game_score).toInt() == -1, "First flip costs 1")
-        verify(read(game, ids[0]) != targetContext.getString(R.string.card_back), "Face displayed")
-        screenshot("04-card-first.png")
-        tap(game, ids[0])
-        verify(read(game, R.id.game_score).toInt() == -1, "Turning back is free")
-        verify(read(game, ids[0]) == targetContext.getString(R.string.card_back), "Face hidden")
+    private fun board(game: GameActivity) = game.findViewById<RecyclerView>(R.id.card_grid)
+    private fun cardButton(game: GameActivity, position: Int): Button {
+        runOnMainSync { board(game).scrollToPosition(position) }
+        awaitCondition("RecyclerView holder bound: "+position) {
+            var ready = false
+            runOnMainSync { ready = board(game).findViewHolderForAdapterPosition(position) != null }
+            ready
+        }
+        var result: Button? = null
+        runOnMainSync { result = board(game).findViewHolderForAdapterPosition(position)!!.itemView as Button }
+        return requireNotNull(result)
     }
-    private fun rankMatchRestartAndBest() {
+    private fun flip(game: GameActivity, position: Int) {
+        val button = cardButton(game, position)
+        runOnMainSync { verify(button.isEnabled, "Card enabled"); button.performClick() }
+        waitForIdleSync()
+    }
+    private fun cardText(game: GameActivity, position: Int): String {
+        val button = cardButton(game, position)
+        var result = ""
+        runOnMainSync { result = button.text.toString() }
+        return result
+    }
+    private fun top(game: GameActivity) {
+        runOnMainSync { board(game).scrollToPosition(0) }
+        waitForIdleSync()
+    }
+    private fun board24AndRecycledState() {
+        val (_, game) = game()
+        verify(board(game).adapter is CardAdapter, "Real RecyclerView adapter")
+        verify(board(game).adapter!!.itemCount == 24, "Portrait has 24 cards")
+        verify((board(game).layoutManager as GridLayoutManager).spanCount == 4, "Four columns")
+        screenshot("06-board-24.png")
+        flip(game, 0)
+        val face = cardText(game, 0)
+        verify(cardText(game, 23) == targetContext.getString(R.string.card_back), "Recycled last card stays hidden")
+        verify(cardButton(game, 23).isEnabled, "Recycled hidden card enabled")
+        screenshot("07-recycled-bottom.png")
+        verify(cardText(game, 0) == face, "Rebound first card keeps face")
+    }
+    private fun firstTwoAndTurnBack() {
+        val (_, game) = game()
+        flip(game, 0)
+        verify(read(game, R.id.game_score).toInt() == -1, "First flip costs 1")
+        flip(game, 1)
+        verify(read(game, R.id.game_score).toInt() == -2, "Two cards wait for third")
+        verify(model(game).matchedCount == 0, "No premature pair match")
+        screenshot("08-two-chosen.png")
+        flip(game, 0)
+        verify(read(game, R.id.game_score).toInt() == -2, "Turning back is free")
+        verify(cardText(game, 0) == targetContext.getString(R.string.card_back), "Face hidden")
+    }
+    private fun tripleMatchResetAndBest() {
         val (main, game) = game()
-        val model = model(game)
-        val pair = (0 until model.count).flatMap { a -> (a+1 until model.count).map { b -> a to b } }
-            .first { (a,b) -> model.cardAtIndex(a).rank == model.cardAtIndex(b).rank }
-        tap(game, ids[pair.first]); tap(game, ids[pair.second])
-        verify(read(game, R.id.game_score).toInt() == 14, "Rank match net score 14")
-        verify(!game.findViewById<Button>(ids[pair.first]).isEnabled, "Matched card disabled")
-        screenshot("05-card-matched.png")
+        val before = model(game)
+        // Among the first nine cards at least one suit occurs three times.
+        val triple = (0 until 9).groupBy { before.cardAtIndex(it).suit }.values.first { it.size >= 3 }.take(3)
+        triple.forEach { flip(game, it) }
+        verify(read(game, R.id.game_score).toInt() == 9, "Suit triple net score 9")
+        verify(model(game).matchedCount == 3, "Three cards matched")
+        verify(!cardButton(game, triple[0]).isEnabled, "Matched card disabled")
+        top(game)
+        screenshot("09-triple-matched.png")
         tap(game, R.id.restart_game)
+        verify(before === model(game), "Reset reuses same model for adapter")
         verify(read(game, R.id.game_score).toInt() == 0, "New round score reset")
-        verify(read(game, R.id.game_matched) == targetContext.getString(R.string.matched_format, 0, 16), "New round unmatched")
-        verify((0 until 16).all { read(game, ids[it]) == targetContext.getString(R.string.card_back) }, "All cards hidden")
-        screenshot("06-card-restart.png")
+        verify(read(game, R.id.game_matched) == targetContext.getString(R.string.matched_format, 0, 24), "New round unmatched")
+        verify((0 until 24).all { cardText(game, it) == targetContext.getString(R.string.card_back) }, "All 24 cards rebound hidden")
+        top(game)
+        screenshot("10-card-reset.png")
         tap(game, R.id.exit_game)
-        awaitCondition("Best appears on resumed main page") { read(main, R.id.player_best).toInt() == 14 }
-        screenshot("09-main-best.png")
+        awaitCondition("Best appears on resumed main page") { read(main, R.id.player_best).toInt() == 9 }
+        screenshot("11-main-best.png")
     }
     private fun mismatchFeedback() {
         val (_, game) = game()
         val model = model(game)
-        val pair = (0 until model.count).flatMap { a -> (a+1 until model.count).map { b -> a to b } }
-            .first { (a,b) -> model.cardAtIndex(a).match(arrayOf(model.cardAtIndex(b))) == 0 }
-        tap(game, ids[pair.first]); tap(game, ids[pair.second])
-        verify(read(game, R.id.game_score).toInt() == -4, "Mismatch net score -4")
-        verify(read(game, ids[pair.first]) == targetContext.getString(R.string.card_back), "Previous card hides")
+        val triple = (0 until model.count).flatMap { a ->
+            (a+1 until model.count).flatMap { b -> (b+1 until model.count).map { c -> listOf(a,b,c) } }
+        }.first { (a,b,c) -> model.cardAtIndex(a).match(arrayOf(model.cardAtIndex(b),model.cardAtIndex(c))) == 0 }
+        triple.forEach { flip(game, it) }
+        verify(read(game, R.id.game_score).toInt() == -5, "Mismatch net score -5")
+        verify(cardText(game, triple[0]) == targetContext.getString(R.string.card_back), "First card hides")
+        verify(cardText(game, triple[1]) == targetContext.getString(R.string.card_back), "Second card hides")
+        verify(model.cardAtIndex(triple[2]).isChosen, "Newest card stays chosen")
         verify(read(game, R.id.game_feedback) == targetContext.getString(R.string.mismatch_prompt), "Feedback follows model")
-        screenshot("07-card-mismatch.png")
+        top(game)
+        screenshot("12-card-mismatch.png")
     }
     private fun rotate(game: GameActivity, orientation: Int): GameActivity {
         val monitor = addMonitor(GameActivity::class.java.name, null, false)
@@ -216,17 +292,28 @@ class CardGameUiRunner : Instrumentation() {
     }
     private fun rotationRestoresGame() {
         val (_, original) = game()
-        tap(original, ids[0])
-        val face = read(original, ids[0])
+        flip(original, 0); flip(original, 1)
+        val before = model(original).snapshot()
         var game = rotate(original, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-        verify(read(game, R.id.game_score).toInt() == -1, "Score survives landscape")
-        verify(read(game, ids[0]) == face, "Card state survives landscape")
-        runOnMainSync {
-            val grid = game.findViewById<android.view.View>(R.id.card_grid)
-            grid.requestRectangleOnScreen(android.graphics.Rect(0, 0, grid.width, grid.height), true)
-        }
-        screenshot("08-game-landscape.png")
+        verify(read(game, R.id.game_score).toInt() == -2, "Score survives landscape")
+        verify(model(game).snapshot() == before, "Whole 24 card round survives rotation")
+        verify((board(game).layoutManager as GridLayoutManager).spanCount == 9, "Landscape nine columns")
+        screenshot("13-rotation-preserved.png")
         game = rotate(game, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-        verify(read(game, R.id.game_score).toInt() == -1 && read(game, ids[0]) == face, "Portrait restores state")
+        verify(model(game).snapshot() == before, "Portrait restores all state")
+    }
+    private fun landscapeNewRound36() {
+        val (_, original) = game()
+        var game = rotate(original, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        tap(game, R.id.restart_game)
+        verify(board(game).adapter!!.itemCount == 36, "Landscape reset has 36 cards")
+        verify(read(game, R.id.game_score).toInt() == 0, "Landscape reset score zero")
+        cardButton(game, 35)
+        top(game)
+        screenshot("14-landscape-36.png")
+        game = rotate(game, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        verify(board(game).adapter!!.itemCount == 36, "Rotate retains existing 36 card round")
+        tap(game, R.id.restart_game)
+        verify(board(game).adapter!!.itemCount == 24, "Portrait next round returns to 24")
     }
 }
