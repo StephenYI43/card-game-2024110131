@@ -44,8 +44,8 @@ Model 位于 `model/`，独立处理三牌匹配、计分、reset、终局和快
 
 GitHub 不允许作者批准自己的 PR，因此独立个人实验使用“强制 PR、0个外部批准、提交检查必过”，并通过 PR 评论记录代码自审，不冒充第二名审核人。没有使用管理员绕过合并。本次登录没有 workflow 写权限，因此不运行 GitHub Actions；构建、23项单元测试、10项设备UI测试和 Lint 均在本机实际完成，再将带有原始XML证据链接的成功状态登记到对应提交，不把本机测试冒充云端CI。
 
-实验报告由工作区附件模板通过 WPS 接口填写，另存为实验五文件，不使用桌面点击自动化。报告及生成脚本使用独立 lab5 文件名；实验四文件未覆盖。
+实验五报告位于docs目录，采用独立文件名；实验四报告仍单独保留。
 
-[实验五已填写报告](docs/实验五_RecyclerView翻牌游戏_实验报告_2024110131宋珺熠.docx) 共9页，含真实运行截图、带行号源码、测试和已合并PR记录。实验五生成脚本为 `scripts/build_report_lab5_wps.ps1` 和 `scripts/report_lab5_figures.py`；同仓库历史实验四脚本不用于生成实验五。
+[实验五已填写报告](docs/实验五_RecyclerView翻牌游戏_实验报告_2024110131宋珺熠.docx) 共9页，含运行截图、主要代码、测试结果和PR合并记录。
 
 官方参考：[RecyclerView](https://developer.android.com/develop/ui/views/layout/recyclerview)、[版本1.4.0](https://developer.android.com/jetpack/androidx/releases/recyclerview)、[GitHub分支保护](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)。
