@@ -118,11 +118,8 @@ Heading '2 问题分析与解决' | Out-Null
 Add-Text '增加RecyclerView后首次离线检查缺少androidx.collection依赖，联网补齐缓存后构建正常。首轮菜单测试使用Instrumentation的旧菜单分发接口，不能定位Toolbar溢出菜单，尽管菜单已经显示；改为在Instrumentation中查找实际菜单条目并点击，再检查对话框中的学号，完整复测后10项设备测试全部通过。' | Out-Null
 Add-Text '列表复用容易导致牌面、背景或禁用状态遗留，因此onBindViewHolder每次都重设相关属性。点击回调不捕获过期position，使用bindingAdapterPosition并检查NO_POSITION。采用快照与DiffUtil更新后，全量刷新警告也已消除。' | Out-Null
 Add-Text '横竖屏不同新局牌数与“旋转不丢牌局”需要区分：首次进入或重开按方向选择24/36张，普通旋转只改变列数。快照保留两张待选牌，使第三张判定仍可继续，避免只保存分数造成模型与画面不一致。' | Out-Null
-Heading '3 实验体会与复现' | Out-Null
+Heading '3 实验体会' | Out-Null
 Add-Text '通过本实验，我把三牌规则放在模型层，通过适配器回调连接控制器，而没有把计分写进按钮。模型测试可以精确验证奖励与扣分，设备测试补充验证列表复用、菜单、导航和重建。Git分支保护把合并集中到PR中，个人自审记录与独立批准也应如实区分。' | Out-Null
-Add-Text 'Android Studio打开 C:\Users\48604\Documents\ChatGPT\android-labs\assignment5-project。安装SDK 35并启动API 35模拟器后运行app。工作区assignment5-recyclerview是指向该目录的链接，不是实验四目录，也不依赖临时盘符。' | Out-Null
-Add-Text '复现命令：gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:connectedDebugAndroidTest :app:lintDebug。首次需要联网，缓存齐全后可加--offline。设备测试的本机验证与GitHub提交状态分别记录，报告通过WPS接口填写并导出检查。' | Out-Null
-Add-Text '参考资料：课程实验五报告模板；Android Developers的RecyclerView说明及1.4.0发行页；GitHub Docs的分支保护与PR说明。完整链接及测试证据见仓库README。' | Out-Null
 Add-Text $gradeNote 9 | Out-Null
 $doc.Save()
 $doc.ExportAsFixedFormat((Join-Path $qa 'report.pdf'),17)
