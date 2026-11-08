@@ -1,0 +1,19 @@
+<resources>
+    <string name="lab6_caption">CARD STUDIO / LAB 06</string>
+    <string name="lab6_profile">个人资料</string>
+    <string name="lab6_pair">双牌游戏</string>
+    <string name="lab6_triple">三牌游戏</string>
+    <string name="lab6_profile_title">玩家档案</string>
+    <string name="lab6_profile_hint">保存后，下次打开仍可查看资料。</string>
+    <string name="lab6_required">请输入有效内容</string>
+    <string name="lab6_saved">资料已保存</string>
+    <string name="lab6_save_error">保存失败，请重试</string>
+    <string name="lab6_best">历史最高分 %1$d</string>
+    <string name="lab6_stats">得分 %1$d · 翻牌 %2$d · 匹配 %3$d/%4$d</string>
+    <string name="lab6_pair_rules">每组翻两张，同点数 +16，同花色 +4。</string>
+    <string name="lab6_triple_rules">每组翻三张，同点数 +24，同花色 +12。</string>
+    <string name="lab6_select">选择未匹配的牌，进度会自动保存。</string>
+    <string name="lab6_matched">匹配成功，明牌已锁定。</string>
+    <string name="lab6_mismatch">未匹配，前面的待选牌已收起。</string>
+    <string name="lab6_finished">本局结束，可重新开始。</string>
+</resources>

@@ -8,7 +8,9 @@ data class PlayerProfile(
     val email: String = "",
     val hobbies: List<Int> = emptyList(),
     val bestScore: Int = 0
-)
+) : java.io.Serializable {
+    private companion object { const val serialVersionUID = 1L }
+}
 
 /** Memory-only session: editing profile information never writes a file. */
 class PlayerSession(initial: PlayerProfile) {

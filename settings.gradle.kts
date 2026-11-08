@@ -3,5 +3,5 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories { google(); mavenCentral() }
 }
-rootProject.name = "RecyclerCardGameLab5"
+rootProject.name = "FragmentCardGameLab6"
 include(":app")

@@ -6,12 +6,11 @@ android {
     namespace = "com.songjunyi.cardgame"
     compileSdk = 35
     defaultConfig {
-        applicationId = "com.songjunyi.cardgame.lab5"
+        applicationId = "com.songjunyi.cardgame.lab6"
         minSdk = 23
         targetSdk = 35
-        versionCode = 5
-        versionName = "5.0"
-        testInstrumentationRunner = "com.songjunyi.cardgame.CardGameUiRunner"
+        versionCode = 6
+        versionName = "6.0"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

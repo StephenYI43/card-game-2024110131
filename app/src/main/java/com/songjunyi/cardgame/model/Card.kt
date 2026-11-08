@@ -8,7 +8,8 @@ data class Card(
     val rank: Int,
     var isChosen: Boolean = false,
     var isMatched: Boolean = false
-) {
+) : java.io.Serializable {
+    private companion object { const val serialVersionUID = 1L }
     init { require(rank in 1..13) }
     fun match(otherCards: Array<Card>): Int {
         if (otherCards.size != 2) return 0
